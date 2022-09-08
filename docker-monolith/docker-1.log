@@ -1,0 +1,8 @@
+REPOSITORY                TAG       IMAGE ID       CREATED         SIZE
+daskain/ubuntu-tmp-file   latest    640ef51a1cbb   2 minutes ago   63.1MB
+ubuntu                    18.04     35b3f4f76a24   14 hours ago    63.1MB
+wurstmeister/kafka        latest    a692873757c0   3 months ago    468MB
+hello-world               latest    feb5d9fea6a5   11 months ago   13.3kB
+wurstmeister/zookeeper    latest    3f43f72cb283   3 years ago     510MB
+
+Контейнер - это объект, экземпляр образа. Образ содержит в себе все слои (доступны только для чтения), контейнер содержит верхний слой (доступен для записи)
