@@ -1,7 +1,7 @@
 # daskain_microservices
 daskain microservices repository
 
-# Выполнено ДЗ №14
+# Выполнено ДЗ №15
 
  - [x] Основное ДЗ
  - [ ] Задание со *
@@ -28,7 +28,7 @@ docker-compose -p project_name up -d
  - [x] Выставил label с темой домашнего задания
 
 
-# Выполнено ДЗ №15
+# Выполнено ДЗ №16
 
  - [x] Основное ДЗ
  - [x] Задание со * Автоматизация развёртывания GitLab (по желанию)
@@ -71,7 +71,7 @@ daskain@gitlab-ci-vm:/srv/gitlab/config$ sudo cat /srv/gitlab/config/initial_roo
  - [x] Выставил label с темой домашнего задания
 
 
-# Выполнено ДЗ №16
+# Выполнено ДЗ №17
 
  - [x] Основное ДЗ
  - [ ] Задание со *
@@ -89,6 +89,68 @@ daskain@gitlab-ci-vm:/srv/gitlab/config$ sudo cat /srv/gitlab/config/initial_roo
 
 ### Запушил образы в докер хаб
 Образы запушил в докер - https://hub.docker.com/u/daskain
+
+## PR checklist
+ - [ ] Выставил label с номером домашнего задания
+ - [x] Выставил label с темой домашнего задания
+
+# Выполнено ДЗ №18
+
+ - [x] Основное ДЗ
+ - [ ] Задание со *
+
+## В процессе сделано:
+ - Подготовка окружения
+ - Логирование Docker-контейнеров
+ - Сбор неструктурированных логов
+ - Визуализация логов
+ - Сбор структурированных логов
+ - Распределенный трейсинг
+
+### Окружение
+Установил необходимые компоненты на ПК, пересобрал Docker-образы и запушил в свое репо
+Создал и запустил хост с докером
+
+### Структурированные логи
+Настроил сбор логов для сервиса post. Index настроил на паттерн fluentd. Далее разбил логи на несколько полей через конфигу.
+
+### Неструктурированные логи
+Настроил сбор логов для сервиса ui. Далее разбил логи на несколько полей через конфигу.
+Включил zipkin
+
+
+## Как проверить
+Создать хост:
+```
+ yc compute instance create \
+  --name logging \
+  --zone ru-central1-a \
+  --network-interface subnet-name=default-ru-central1-a,nat-ip-version=ipv4 \
+  --memory=6 \
+  --create-boot-disk image-folder-id=standard-images,image-family=ubuntu-1804-lts,size=15 \
+  --ssh-key ./id_rsa.pub
+```
+
+Запустить докер:
+```
+  docker-machine create \
+  --driver generic \
+  --generic-ip-address=<YANDEX_IP> \
+  --generic-ssh-user yc-user \
+  --generic-ssh-key ./id_rsa \
+ logging
+```
+
+Сервис доступен по адресу:
+```
+http://YANDEX_IP:9292/
+```
+
+Кибана доступна по адресу:
+```
+http://YANDEX_IP:5601/
+```
+
 
 ## PR checklist
  - [ ] Выставил label с номером домашнего задания
