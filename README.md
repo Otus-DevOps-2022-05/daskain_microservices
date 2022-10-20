@@ -155,3 +155,72 @@ http://YANDEX_IP:5601/
 ## PR checklist
  - [ ] Выставил label с номером домашнего задания
  - [x] Выставил label с темой домашнего задания
+
+# Выполнено ДЗ №19
+
+ - [x] Основное ДЗ
+ - [x] Задание со *
+
+## В процессе сделано:
+ - Подготовил репо
+ - Развернул кластер k8s в облаке
+ - Развернул кластер через ansible и terraform
+
+
+ ### Подготовка
+ Создал папки в репо для ДЗ, добавил файлы манифестов
+
+
+### Кластер кубера
+Подготовил шаблон терраформа для мастер и воркер нод. В примере запустил 1 мастер, 2 воркер ноды. Через плэйбуки раскатал и подружил их между собой
+
+Инвентори не динамическое, приходится руками править. Пока не знаю как сделать динамически.
+Конфиги подгружается на локальную машину.
+
+## Как проверить
+Создать инстансы (3 штуки на данный момент):
+```
+terraform apply
+```
+
+Скопировать ip в inventory, запустить пайплайны.
+Мастер:
+```
+ansible-playbook k8s_master.yml
+```
+Воркер:
+```
+ansible-playbook k8s_worker.yml
+```
+
+Скопировать конфигу на локуальную машину
+
+Проверить ноды:
+```
+$kubectl get node
+NAME    STATUS   ROLES           AGE     VERSION
+k8s-0   Ready    control-plane   15m     v1.25.3
+k8s-1   Ready    <none>          7m48s   v1.25.3
+k8s-2   Ready    <none>          7m48s   v1.25.3
+```
+Создать поды:
+```
+$kubectl apply -f mongo-deployment.yml
+$kubectl apply -f post-deployment.yml
+$kubectl apply -f ui-deployment.yml
+$kubectl apply -f comment-deployment.yml
+```
+Проверить поды:
+```
+$kubectl get pods
+NAME                                  READY   STATUS    RESTARTS   AGE
+comment-deployment-745b4cdb5f-4kvwq   1/1     Running   0          6m22s
+mongo-deployment-759bbff9f9-x8llk     1/1     Running   0          6m13s
+post-deployment-989d6d77c-pxc8k       1/1     Running   0          6m4s
+ui-deployment-67ff9b5d5-lc6ns         1/1     Running   0          6m1s
+```
+
+
+## PR checklist
+ - [ ] Выставил label с номером домашнего задания
+ - [x] Выставил label с темой домашнего задания
