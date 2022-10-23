@@ -229,13 +229,14 @@ ui-deployment-67ff9b5d5-lc6ns         1/1     Running   0          6m1s
 # Выполнено ДЗ №20
 
  - [x] Основное ДЗ
- - [ ] Задание со *
+ - [x] Задание со *
 
 ## В процессе сделано:
  - Развернуть minikube
  - Развернуть приложение в minikube
  - Создал кластер в облаке
  - Развернул на кластере в облаке приложение
+ - Задание со * - развернуть дашбоард
 
 ### Раверзнуть minikube
 Скачал и установил. Запустил:
@@ -288,9 +289,34 @@ Type:                     NodePort
 NodePort:                 <unset>  31917/TCP
 ```
 
+## Задание со * - развернуть дашбоард
+Установить дашборд:
+```
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.6.1/aio/deploy/recommended.yaml
+```
+Создать пользователя:
+```
+kubectl --namespace kubernetes-dashboard create serviceaccount kuber
+```
+Задать роль:
+```
+kubectl apply -f kubernetes-dashboard
+```
+Получить токен:
+```
+kubectl -n kubernetes-dashboard create token kuber
+```
+
+Интерфейс доступен по адресу:
+http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/workloads?namespace=default
+
+
+
 ## Как проверить
 Развернуть в кластере и проверить по адресу node_ip:port
 Microservices Reddit in dev ui-5d769db5bb-vcjrm container
+Дашборд доступен по адресу:
+http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/workloads?namespace=default
 
 
 ## PR checklist
