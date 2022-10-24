@@ -6,3 +6,4 @@ id_rsa*
 *.retry
 key.json
 join-command
+*.tfstate
