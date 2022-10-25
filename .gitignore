@@ -7,3 +7,5 @@ id_rsa*
 key.json
 join-command
 *.tfstate
+*.crt
+*.key
