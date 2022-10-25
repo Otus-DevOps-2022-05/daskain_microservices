@@ -337,6 +337,7 @@ http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kube
  - Добавить TLS
  - Создал манифест для Secret
  - NetworkPolicy
+ - Внешний volume
 
 ### Подготовка
 Создал инстанс и задеплоил приложение
