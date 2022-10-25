@@ -1,0 +1,5 @@
+---
+# Файл переменных 'vars.yml'
+user: ubuntu
+calico_cidr: 10.244.0.0/16
+node_ip_ex: 0.0.0.0

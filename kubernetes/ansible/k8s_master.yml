@@ -1,0 +1,178 @@
+---
+- hosts: k8s-master
+  become: true
+  vars_files:
+    - vars.yml
+
+  tasks:
+  - name: Install packages that allow apt to be used over HTTPS
+    apt:
+      name: "{{ packages }}"
+      state: present
+      update_cache: yes
+    vars:
+      packages:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg-agent
+      - software-properties-common
+
+  - name: Add an apt signing key for Docker
+    apt_key:
+      url: https://download.docker.com/linux/ubuntu/gpg
+      state: present
+
+  - name: Add apt repository for stable version
+    apt_repository:
+      repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
+      state: present
+
+  - name: Install docker and its dependecies
+    apt:
+      name: "{{ packages }}"
+      state: present
+      update_cache: yes
+    vars:
+      packages:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+    notify:
+      - docker status
+
+  - name: Add {{ user }} user to docker group
+    user:
+      name: "{{ user }}"
+      group: docker
+
+  - name: Remove swapfile from /etc/fstab
+    mount:
+      name: "{{ item }}"
+      fstype: swap
+      state: absent
+    with_items:
+      - swap
+      - none
+
+  - name: Disable swap
+    command: swapoff -a
+    when: ansible_swaptotal_mb > 0
+
+  - name: Add an apt signing key for Kubernetes
+    apt_key:
+      url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+      state: present
+
+  - name: Adding apt repository for Kubernetes
+    apt_repository:
+      repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
+      state: present
+      filename: kubernetes.list
+
+  - name: Install Kubernetes binaries
+    apt:
+      name: "{{ packages }}"
+      state: present
+      update_cache: yes
+    vars:
+      packages:
+        - kubelet
+        - kubeadm
+        - kubectl
+
+  - name: Restart kubelet
+    service:
+      name: kubelet
+      daemon_reload: yes
+      state: restarted
+
+  - name: Rm config
+    file:
+      state: absent
+      path: /etc/containerd/config.toml
+
+  - name: containerd restart
+    service:
+      name: "containerd"
+      state: restarted
+
+  - name: stop kubelet
+    service:
+      name: "kubelet"
+      state: stopped
+
+  - name: stop docker
+    service:
+      name: "docker"
+      state: stopped
+
+  - name: Flush iptables
+    ansible.builtin.shell: iptables -F && iptables -t nat -F && iptables -t mangle -F && iptables -X
+
+  - name: swapoff
+    ansible.builtin.shell: swapoff -a
+
+  - name: start kubelet
+    service:
+      name: "kubelet"
+      state: started
+
+  - name: start docker
+    service:
+      name: "docker"
+      state: started
+
+  - name: Initialize the Kubernetes cluster using kubeadm
+    command: |
+          kubeadm init \
+          --apiserver-advertise-address="{{ node_ip_ex }}" \
+          --control-plane-endpoint="{{ ansible_host }}" \
+          --apiserver-cert-extra-sans="{{ ansible_host }}" \
+          --pod-network-cidr="{{ calico_cidr }}"
+    ignore_errors: true
+
+  - name: Setup kubeconfig for {{ user }}
+    command: "{{ item }}"
+    with_items:
+     - mkdir -p /home/{{ user }}/.kube
+     - cp -i /etc/kubernetes/admin.conf /home/{{ user }}/.kube/config
+     - chown {{ user }}:{{ user }} /home/{{ user }}/.kube/config
+
+  - name: Check if Calico add-on has been already installed
+    become: false
+    ansible.builtin.shell: kubectl get pods --all-namespaces
+    changed_when: false
+    register: calico_info
+
+  - name: Create directory for k8s add-ons
+    ansible.builtin.file:
+      path: "/home/{{ user }}/.kube"
+      state: directory
+      owner: "{{ user }}"
+      group: "{{ user }}"
+      mode: 0770
+
+  - name: Copy Pod network add-on yml file
+    ansible.builtin.template:
+      src: calico.yaml.j2
+      dest: "/home/{{ user }}/.kube/calico.yaml"
+      owner: "{{ user }}"
+      group: "{{ user }}"
+      mode: 0660
+
+  - name: Install calico pod network
+    become: false
+    ansible.builtin.shell: "kubectl apply -f /home/{{ user }}/.kube/calico.yaml"
+    when: '"calico" not in calico_info.stdout'
+
+  - name: Generate join command
+    command: kubeadm token create --print-join-command
+    register: join_command
+
+  - name: Copy join command to local file
+    local_action: copy content="{{ join_command.stdout_lines[0] }}" dest="files/join-command"
+
+  handlers:
+    - name: docker status
+      service: name=docker state=started
