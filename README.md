@@ -224,3 +224,101 @@ ui-deployment-67ff9b5d5-lc6ns         1/1     Running   0          6m1s
 ## PR checklist
  - [ ] Выставил label с номером домашнего задания
  - [x] Выставил label с темой домашнего задания
+
+
+# Выполнено ДЗ №20
+
+ - [x] Основное ДЗ
+ - [x] Задание со *
+
+## В процессе сделано:
+ - Развернуть minikube
+ - Развернуть приложение в minikube
+ - Создал кластер в облаке
+ - Развернул на кластере в облаке приложение
+ - Задание со * - развернуть дашбоард
+
+### Раверзнуть minikube
+Скачал и установил. Запустил:
+```
+$kubectl get nodes
+NAME       STATUS   ROLES    AGE     VERSION
+minikube   Ready    master   2m56s   v1.19.7
+```
+### Развернуть приложение в minikube
+Запустил UI-компонент:
+```
+$kubectl get pods --selector component=ui
+NAME                  READY   STATUS    RESTARTS   AGE
+ui-86b84cdf4f-7cbvd   1/1     Running   0          103s
+ui-86b84cdf4f-c4bt6   1/1     Running   0          103s
+ui-86b84cdf4f-r24gn   1/1     Running   0          103s
+```
+Сконфигурировал и запустил остальные комопненты приложения
+
+### Развернул кластер кубера в облаке
+Кластер кубера:
+```
+$kubectl config get-contexts
+CURRENT   NAME                          CLUSTER                               AUTHINFO                              NAMESPACE
+          kubernetes-admin@kubernetes   kubernetes                            kubernetes-admin
+          minikube                      minikube                              minikube                              default
+*         yc-k8s                        yc-managed-k8s-cat2jdvpqihaedc23i3p   yc-managed-k8s-cat2jdvpqihaedc23i3p
+$kubectl config current-context
+yc-k8s
+$kubectl get nodes -o wide
+NAME                        STATUS   ROLES    AGE   VERSION    INTERNAL-IP   EXTERNAL-IP       OS-IMAGE             KERNEL-VERSION      CONTAINER-RUNTIME
+cl16rqf4j7thsn0vl016-eveq   Ready    <none>   25m   v1.20.11   10.128.0.5    178.154.207.84    Ubuntu 20.04.4 LTS   5.4.0-124-generic   docker://20.10.17
+cl16rqf4j7thsn0vl016-ymyv   Ready    <none>   25m   v1.20.11   10.128.0.25   178.154.202.100   Ubuntu 20.04.4 LTS   5.4.0-124-generic   docker://20.10.17
+```
+### Развернул приложение
+Поды:
+```
+$kubectl get pods -o wide -n dev
+NAME                       READY   STATUS    RESTARTS   AGE     IP              NODE                        NOMINATED NODE   READINESS GATES
+comment-5dc6d868b6-zr6nf   1/1     Running   0          4m14s   10.112.129.9    cl16rqf4j7thsn0vl016-eveq   <none>           <none>
+mongo-77dbd4f49f-fhbzb     1/1     Running   0          4m14s   10.112.128.10   cl16rqf4j7thsn0vl016-ymyv   <none>           <none>
+post-7bf59855cf-6rzhc      1/1     Running   0          4m9s    10.112.129.11   cl16rqf4j7thsn0vl016-eveq   <none>           <none>
+post-7bf59855cf-cbrj7      1/1     Running   0          4m14s   10.112.128.12   cl16rqf4j7thsn0vl016-ymyv   <none>           <none>
+post-7bf59855cf-g4q2q      1/1     Running   0          4m6s    10.112.128.13   cl16rqf4j7thsn0vl016-ymyv   <none>           <none>
+ui-5d769db5bb-8nm2k        1/1     Running   0          4m8s    10.112.129.12   cl16rqf4j7thsn0vl016-eveq   <none>           <none>
+ui-5d769db5bb-pzpd2        1/1     Running   0          4m11s   10.112.129.10   cl16rqf4j7thsn0vl016-eveq   <none>           <none>
+ui-5d769db5bb-vcjrm        1/1     Running   0          4m14s   10.112.128.11   cl16rqf4j7thsn0vl016-ymyv   <none>           <none>
+$kubectl describe service ui -n dev | grep NodePort
+Type:                     NodePort
+NodePort:                 <unset>  31917/TCP
+```
+
+## Задание со * - развернуть дашбоард
+Установить дашборд:
+```
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.6.1/aio/deploy/recommended.yaml
+```
+Создать пользователя:
+```
+kubectl --namespace kubernetes-dashboard create serviceaccount kuber
+```
+Задать роль:
+```
+kubectl apply -f kubernetes-dashboard
+```
+Получить токен:
+```
+kubectl -n kubernetes-dashboard create token kuber
+```
+
+Интерфейс доступен по адресу:
+http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/workloads?namespace=default
+
+
+
+## Как проверить
+Развернуть в кластере и проверить по адресу node_ip:port
+Microservices Reddit in dev ui-5d769db5bb-vcjrm container
+Дашборд доступен по адресу:
+http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/workloads?namespace=default
+
+
+## PR checklist
+ - [ ] Выставил label с номером домашнего задания
+ - [x] Выставил label с темой домашнего задания
