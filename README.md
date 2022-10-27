@@ -322,3 +322,98 @@ http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kube
 ## PR checklist
  - [ ] Выставил label с номером домашнего задания
  - [x] Выставил label с темой домашнего задания
+
+
+# Выполнено ДЗ №21
+
+ - [x] Основное ДЗ
+ - [x] Задание со * добавить манифест для создания Secret
+
+
+## В процессе сделано:
+ - Развернуть кластер k8s и приложение
+ - Изменить тип сервиса на LoadBalancer
+ - Запустить ingress-nginx
+ - Добавить TLS
+ - Создал манифест для Secret
+ - NetworkPolicy
+ - Внешний volume
+
+### Подготовка
+Создал инстанс и задеплоил приложение
+Добавил LoadBalancer и ingress-nginx
+Добавил TLS
+
+### Задание со * добавить манифест для создания Secret
+Создал манифест ui-secret.yml. В base64 закодировал ключ и серт
+```
+$ openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout tls.key -out tls.crt -subj "/CN=35.190.66.90"
+$cat tls.key | base64
+$cat tls.crt | base64
+$kubectl create -f ui-secret.yml -n dev
+$kubectl get secret -n dev
+NAME                  TYPE                                  DATA   AGE
+default-token-6qpfl   kubernetes.io/service-account-token   3      82m
+ui-ingress            kubernetes.io/tls                     2      3s
+$ kubectl describe secret ui-ingress -n dev
+Name:         ui-ingress
+Namespace:    dev
+Labels:       app=reddit
+              component=ui
+Annotations:  <none>
+
+Type:  kubernetes.io/tls
+
+Data
+====
+tls.crt:  1123 bytes
+tls.key:  1708 bytes
+```
+
+### NetworkPolicy
+NetworkPolicy через calico доступен. Добавил манифест mongo-newtwork-policy.yml. В нем добавил блоки для разрешения доступа
+
+### Внешний volume для mongo
+Создал диск:
+```
+$yc compute disk create --name k8s --size 4 --description "disk for k8s" --zone ru-central1-a --folder-id b1gredog3lnp4c6m5gdr
+
+$yc compute disk list --folder-id b1gredog3lnp4c6m5gdr
++----------------------+------+-------------+---------------+--------+----------------------+--------------+
+|          ID          | NAME |    SIZE     |     ZONE      | STATUS |     INSTANCE IDS     | DESCRIPTION  |
++----------------------+------+-------------+---------------+--------+----------------------+--------------+
+| fhmh2bdet4e0p1a49btq |      | 68719476736 | ru-central1-a | READY  | fhmn2jrkvi0f2cckh13a |              |
+| fhmrgls9spuhh7k68kp2 |      | 68719476736 | ru-central1-a | READY  | fhm7fhjifldf56t81d9o |              |
+| fhmvq13bqh91d4rq47p4 | k8s  |  4294967296 | ru-central1-a | READY  |                      | disk for k8s |
++----------------------+------+-------------+---------------+--------+----------------------+--------------+
+```
+
+Создал манифесты для mongo-pv и mongo-pvc. Изменил манифест для деплоя mongo и пересоздал.
+
+После всех манипуляций добавил посты, пересоздал деплоймент - посты на месте
+
+
+## Как проверить
+
+```
+$terraform apply
+Apply complete! Resources: 4 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+cluster_external_v4_endpoint = https://178.154.203.255
+yc-test-node-group_status = running
+```
+Задеплоить приложение, проверить IP:
+```
+$kubectl get ingress -n dev
+NAME   CLASS    HOSTS   ADDRESS         PORTS     AGE
+ui     <none>   *       62.84.116.251   80, 443   14m
+```
+
+Microservices Reddit in dev ui-5485d7bd5f-nnckv container
+
+
+## PR checklist
+ - [ ] Выставил label с номером домашнего задания
+ - [x] Выставил label с темой домашнего задания
