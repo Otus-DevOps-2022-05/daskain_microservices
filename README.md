@@ -473,7 +473,7 @@ Microservices Reddit in dev ui-5485d7bd5f-nnckv container
 # Выполнено ДЗ №22
 
  - [x] Основное ДЗ
- - [x] Задание со *
+ - [ ] Задание со *
 
 
 ## В процессе сделано:
