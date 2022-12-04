@@ -9,3 +9,4 @@ join-command
 *.tfstate
 *.crt
 *.key
+*.tgz

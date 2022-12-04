@@ -1,7 +1,7 @@
 # daskain_microservices
 daskain microservices repository
 
-# Выполнено ДЗ №15
+# Выполнено ДЗ №14
 
  - [x] Основное ДЗ
  - [ ] Задание со *
@@ -28,7 +28,7 @@ docker-compose -p project_name up -d
  - [x] Выставил label с темой домашнего задания
 
 
-# Выполнено ДЗ №16
+# Выполнено ДЗ №15
 
  - [x] Основное ДЗ
  - [x] Задание со * Автоматизация развёртывания GitLab (по желанию)
@@ -71,7 +71,7 @@ daskain@gitlab-ci-vm:/srv/gitlab/config$ sudo cat /srv/gitlab/config/initial_roo
  - [x] Выставил label с темой домашнего задания
 
 
-# Выполнено ДЗ №17
+# Выполнено ДЗ №16
 
  - [x] Основное ДЗ
  - [ ] Задание со *
@@ -94,7 +94,7 @@ daskain@gitlab-ci-vm:/srv/gitlab/config$ sudo cat /srv/gitlab/config/initial_roo
  - [ ] Выставил label с номером домашнего задания
  - [x] Выставил label с темой домашнего задания
 
-# Выполнено ДЗ №18
+# Выполнено ДЗ №17
 
  - [x] Основное ДЗ
  - [ ] Задание со *
@@ -156,7 +156,7 @@ http://YANDEX_IP:5601/
  - [ ] Выставил label с номером домашнего задания
  - [x] Выставил label с темой домашнего задания
 
-# Выполнено ДЗ №19
+# Выполнено ДЗ №18
 
  - [x] Основное ДЗ
  - [x] Задание со *
@@ -226,7 +226,7 @@ ui-deployment-67ff9b5d5-lc6ns         1/1     Running   0          6m1s
  - [x] Выставил label с темой домашнего задания
 
 
-# Выполнено ДЗ №20
+# Выполнено ДЗ №19
 
  - [x] Основное ДЗ
  - [x] Задание со *
@@ -324,7 +324,7 @@ http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kube
  - [x] Выставил label с темой домашнего задания
 
 
-# Выполнено ДЗ №21
+# Выполнено ДЗ №20
 
  - [x] Основное ДЗ
  - [x] Задание со * добавить манифест для создания Secret
@@ -412,6 +412,115 @@ ui     <none>   *       62.84.116.251   80, 443   14m
 ```
 
 Microservices Reddit in dev ui-5485d7bd5f-nnckv container
+
+
+## PR checklist
+ - [ ] Выставил label с номером домашнего задания
+ - [x] Выставил label с темой домашнего задания
+
+
+# Выполнено ДЗ №21
+
+ - [x] Основное ДЗ
+ - [x] Задание со * добавить манифест для создания Secret
+
+
+## В процессе сделано:
+ - Установил helm3
+ - Создал чарты
+ - Запустить ingress-nginx
+ - Добавить TLS
+ - Создал манифест для Secret
+ - NetworkPolicy
+ - Внешний volume
+
+### Установил helm3
+Установил свежую версию, манифест для tiller создал, но не применял
+
+### Создание чартов
+Создал структуры для чартов
+
+
+### Задание со * добавить манифест для создания Secret
+
+
+
+## Как проверить
+
+```
+$terraform apply
+Apply complete! Resources: 4 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+cluster_external_v4_endpoint = https://178.154.203.255
+yc-test-node-group_status = running
+```
+Задеплоить приложение, проверить IP:
+```
+$kubectl get ingress -n dev
+NAME   CLASS    HOSTS   ADDRESS         PORTS     AGE
+ui     <none>   *       62.84.116.251   80, 443   14m
+```
+
+Microservices Reddit in dev ui-5485d7bd5f-nnckv container
+
+
+## PR checklist
+ - [ ] Выставил label с номером домашнего задания
+ - [x] Выставил label с темой домашнего задания
+
+# Выполнено ДЗ №22
+
+ - [x] Основное ДЗ
+ - [ ] Задание со *
+
+
+## В процессе сделано:
+ - Установил helm3
+ - Создал чарт с зависимостями
+ - Установил GitLab
+ - Подготовил пайпы ci/cd для GitLab
+ - Пробная инсталяция
+
+### Установил helm3
+Все операции проводил на helm3
+
+### Создал чарт с зависимостями
+Создал чарт reddit с зависимостями:
+ - post
+ - ui
+ - comment
+ - mongodb - пришлось создать новый чарт для версии mongo 3.6.3. Со свежей версие возвращается ошибка
+   ```
+   command find requires authentication
+   ```
+
+Ingres контроллер используется один, чарты доступны по адресу ***IP_INGRESS_CONTROLLER/RELEASE_NAME-ui***
+Что-бы версии апп были доступны на разных IP - нужны или loadbancer или разные контроллеры
+
+### Установил GitLab
+Омнибус поставить не удалось. Поставил Gitlab из офф документации [Gitlab](https://docs.gitlab.com/charts/installation/)
+
+## Как проверить
+
+```
+$terraform apply
+Apply complete! Resources: 4 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+cluster_external_v4_endpoint = https://K8S_IP
+yc-test-node-group_status = running
+```
+helm install gitlab gitlab/gitlab \
+  --set global.hosts.domain=K8S_IP.sslip.io \
+  --set global.hosts.externalIP=K8S_IP \
+  --set certmanager-issuer.email=me@example.com \
+  --set gitlab-runner.runners.privileged=true \
+  --set certmanager.install=true \
+  --set global.kas.enabled=true
+```
 
 
 ## PR checklist
